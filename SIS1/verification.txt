@@ -1,0 +1,11 @@
+PROJECT VERIFIED - ALL WORKING
+
+1. AES CORE: implemented (FIPS 197)
+2. MODES: ECB, CBC, CTR, GCM done
+3. RNG: entropy collection from 5+ sources
+4. GUI: full functionality (see screenshots)
+5. ECB WEAKNESS: shown in PPM files
+
+To run:
+python aes_gui.py
+python ecb_image_demo.py

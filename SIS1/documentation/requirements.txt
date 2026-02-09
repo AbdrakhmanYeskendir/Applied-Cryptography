@@ -1,0 +1,123 @@
+2. Technical Requirements
+2.1 AES Implementation
+You must implement the complete AES algorithm according to FIPS 197 specification.
+2.1.1 Core AES Operations
+SubBytes Transformation:
+•Implement S-box substitution
+•You may hardcode the S-box lookup table OR compute it using GF(2⁸) operations
+•Implement inverse S-box for decryption
+ShiftRows Transformation:
+•Cyclically shift rows of the state array
+•Implement inverse ShiftRows for decryption
+MixColumns Transformation:
+•Implement Galois Field GF(2⁸) multiplication
+•Apply polynomial multiplication modulo x⁴ + 1
+•Implement inverse MixColumns for decryption
+AddRoundKey:
+•XOR state with round key
+2.1.2 Key Schedule
+Implement key expansion for:
+•AES-128: 128-bit key → 11 round keys (44 words)
+•AES-192: 192-bit key → 13 round keys (52 words)
+•AES-256: 256-bit key → 15 round keys (60 words)
+Key expansion must include:
+•RotWord operation
+•SubWord operation using S-box
+•Rcon (round constant) addition
+2.1.3 Complete Encryption/Decryption
+Encryption must follow:
+1. Initial AddRoundKey
+2. Rounds 1 to N-1:
+   - SubBytes
+   - ShiftRows
+   - MixColumns
+   - AddRoundKey
+3. Final Round:
+   - SubBytes
+   - ShiftRows
+   - AddRoundKey
+Where N = 10 (AES-128), 12 (AES-192), or 14 (AES-256)
+2.2 Modes of Operation
+You must implement the following modes from scratch:
+2.2.1 ECB (Electronic Codebook) Mode
+•Encrypt each 128-bit block independently
+•Implement PKCS#7 padding
+•Warning: Include visible demonstration of ECB weakness (e.g., encrypted image)
+•Must support both encryption and decryption
+2.2.2 CBC (Cipher Block Chaining) Mode
+•XOR each plaintext block with previous ciphertext block
+•Generate random 128-bit IV for each encryption
+•Prepend IV to ciphertext
+•Implement PKCS#7 padding
+•Must support both encryption and decryption
+2.2.3 CTR (Counter) Mode
+•Generate keystream by encrypting counter values
+•Generate random 96-bit nonce, use 32-bit counter
+•XOR keystream with plaintext
+•No padding required (stream cipher mode)
+•Prepend nonce to ciphertext
+2.2.4 GCM (Galois/Counter Mode) - AEAD
+•Implement CTR mode encryption (as above)
+•Implement GMAC authentication using GF(2¹²⁸) arithmetic
+•Compute authentication tag over ciphertext and additional authenticated data (AAD)
+•Generate random 96-bit IV
+•Output format: IV || Ciphertext || Tag (128-bit tag)
+•Verify tag during decryption, reject if invalid
+2.3 Random Number Generation
+Critical Requirement: Implement your own random number generator for generating IVs, nonces, and keys.
+Minimum Requirements:
+•Collect entropy from at least TWO sources:
+  - System time (nanosecond precision)
+  - User input timing
+  - System/process IDs
+  - Any other available entropy source
+•Mix entropy sources (e.g., XOR, concatenation + hashing)
+•Implement a PRNG (e.g., Linear Congruential Generator, Mersenne Twister, or custom)
+•Seed PRNG with collected entropy
+Note: Your RNG does NOT need to be cryptographically secure by production standards, but should demonstrate understanding of entropy collection and seeding principles.
+2.4 Padding Scheme
+Implement PKCS#7 padding for ECB and CBC modes:
+•If plaintext length is multiple of 16 bytes, add full block of padding (0x10 × 16)
+•Otherwise, pad with N bytes of value N (where N = 16 - (length mod 16))
+•Validate and remove padding during decryption
+
+
+3. Application Requirements
+3.1 Platform Choice
+You may develop your application as:
+•Desktop Application: Python, Java, C++, C#, etc.
+•Web Application: JavaScript/TypeScript (Node.js backend + frontend)
+•Mobile Application: Android (Java/Kotlin) or iOS (Swift)
+3.2 User Interface Requirements
+Your application must provide:
+3.2.1 Main Features
+1.Key Size Selection: Allow user to choose AES-128, AES-192, or AES-256
+2.Mode Selection: Allow user to choose ECB, CBC, CTR, or GCM
+3.Key Input: User can enter key manually (hex) OR generate random key
+4.Plaintext/Ciphertext Input: Text input OR file upload
+5.Encrypt/Decrypt Buttons: Clear interface for operations
+6.Output Display: Show result in hex, base64, or save to file
+3.2.2 Additional Features (Recommended)
+•Display intermediate states during encryption (for educational purposes)
+•Benchmark encryption/decryption speed
+•Compare file sizes (plaintext vs ciphertext with different modes)
+•Visual demonstration of ECB mode weakness (encrypt image, show patterns)
+
+4. Testing and Validation
+4.1 Test Vectors
+You must validate your AES implementation against official NIST test vectors:
+•Test AES-128, AES-192, and AES-256 encryption
+•Verify decryption recovers original plaintext
+•Document test results in your report
+Example Test Vector (AES-128):
+Key:       2b7e151628aed2a6abf7158809cf4f3c
+Plaintext: 6bc1bee22e409f96e93d7e117393172a
+Ciphertext: 3ad77bb40d7a3660a89ecaf32466ef97
+4.2 Functional Tests
+Your application must pass these tests:
+7.Round-trip Test: Encrypt then decrypt should recover exact original plaintext
+8.Multiple Block Test: Correctly handle messages longer than 16 bytes
+9.Padding Test: Correctly pad messages not multiple of 16 bytes
+10.Empty Message Test: Handle zero-length input
+11.Large File Test: Successfully encrypt/decrypt file >1 MB
+12.GCM Authentication Test: Reject tampered ciphertext in GCM mode
